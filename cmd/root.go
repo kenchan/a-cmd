@@ -22,12 +22,12 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"context"
 	"os"
 
+	openai "github.com/sashabaranov/go-openai"
 	"github.com/spf13/cobra"
 )
-
-
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -39,9 +39,30 @@ examples and usage of using your application. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+		apiKey := os.Getenv("OPENAI_API_KEY")
+		if apiKey == "" {
+			cmd.PrintErrln("Error: OPENAI_API_KEY environment variable not set")
+			return
+		}
+		client := openai.NewClient(apiKey)
+		req := openai.ChatCompletionRequest{
+			Model:     openai.GPT4o,
+			Messages: []openai.ChatCompletionMessage{
+				{
+					Role:    "user",
+					Content: "Hello, OpenAI!",
+				},
+			},
+			MaxTokens: 5,
+		}
+		resp, err := client.CreateChatCompletion(context.Background(), req)
+		if err != nil {
+			cmd.PrintErrln("Error calling OpenAI API:", err)
+			return
+		}
+		cmd.Println("OpenAI API response:", resp.Choices[0].Message.Content)
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -64,5 +85,3 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
-
-
