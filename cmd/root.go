@@ -51,17 +51,17 @@ to quickly create a Cobra application.`,
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    "user",
-					Content: "Hello, OpenAI!",
+					Content: args[0],
 				},
 			},
-			MaxTokens: 5,
+			MaxTokens: 1000,
 		}
 		resp, err := client.CreateChatCompletion(context.Background(), req)
 		if err != nil {
 			cmd.PrintErrln("Error calling OpenAI API:", err)
 			return
 		}
-		cmd.Println("OpenAI API response:", resp.Choices[0].Message.Content)
+		cmd.Println(resp.Choices[0].Message.Content)
 	},
 }
 
